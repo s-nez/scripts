@@ -1,0 +1,101 @@
+#!/bin/bash
+# Copyright (C) 2013  Szymon Nieznański
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# TRANSLATOR sets the translation service to be used
+# by libtranslate. Valid options are:
+#	babelfish
+#	systran
+#	google
+#	freetranslation
+#	kataku
+#	papiamentu
+#	apertium
+#	opentrad
+# Make sure the service you want to use supports the required languages.
+TRANSLATOR=google
+
+# ICON is the name of a stock icon that will be displayed on notifications
+# or the full path to a custom one
+ICON="gnome-translate"
+
+if [ $LANG = "pl_PL.UTF-8" ]
+then
+	TEXT_ENTRY="Wprowadź tekst do przetłumaczenia"
+	TRANSLATION="Tłumaczenie"
+	GTRAN_ERROR="Błąd w programie GTran"
+	BINARY_NOT_FOUND="Nie znaleziono programu tłumaczącego"
+	NOT_ENOUGH_ARGS="Niewystarczająca ilosć argumentów"
+	UNKNOWN_SERVICE="Wybrano nieznaną usługę"
+	LANGUAGES_NOT_SUPPORTED="Usługa nie obsługuje wybranej kombinacji języków"
+else
+	TEXT_ENTRY="Enter text to translate"
+	TRANSLATION="Translation"
+	GTRAN_ERROR="GTran Error"
+	BINARY_NOT_FOUND="Translator binary not found"
+	NOT_ENOUGH_ARGS="Not enough arguments"
+	UNKNOWN_SERVICE="Unknown service selected"
+	LANGUAGES_NOT_SUPPORTED="Language combination not suported by the service"
+fi
+
+internal_error()
+{
+	echo "$GTRAN_ERROR: $1"
+	notify-send "$GTRAN_ERROR" "$1" -i error
+	exit 1
+}
+
+if [ -f /usr/bin/translate ]
+then
+	EXEC=translate
+elif [ -f /usr/bin/translate-bin ]
+then
+	EXEC=translate-bin
+else
+	internal_error "$BINARY_NOT_FOUND"
+fi
+
+if [ -n "$1" -a -n "$2" ]
+then
+	source=$1
+	target=$2
+else
+	internal_error "$NOT_ENOUGH_ARGS"
+fi
+
+if [ -n "$( $EXEC -s $TRANSLATOR -l | grep 'unknown service' )" ]
+then
+	internal_error "$UNKNOWN_SERVICE"
+fi
+
+if [ -z "$( $EXEC -s $TRANSLATOR -f $source -t $target -l )" ]
+then
+	internal_error "$LANGUAGES_NOT_SUPPORTED"
+fi
+
+text=$( zenity --entry --title="GTran" \
+		--text="$TEXT_ENTRY ($source>$target):" \
+		--entry-text="$( xclip -o )" \
+		--window-icon=/usr/share/icons/gtran.png )
+if [ -n "$text" ]
+then
+translation=$( echo "$text" | $EXEC -s $TRANSLATOR -f $source -t $target )
+# Fix for a change in Google Translate causing some HTML
+# formatting to be included in the translation with libtranslate
+translation=${translation##*[>]}
+echo -n "$translation" | xclip -i
+notify-send "$TRANSLATION ($source>$target)" "$translation" \
+		--icon="$ICON"
+fi
