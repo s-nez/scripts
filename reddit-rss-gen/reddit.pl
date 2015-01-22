@@ -9,8 +9,7 @@ use POSIX 'cuserid';
 # Required to output UTF-8 characters correctly
 binmode STDOUT, ":utf8";
 
-my $user = POSIX::cuserid();
-my $config_dir = "/home/$user/.reddit";
+my $config_dir = $ENV{HOME} . "/.reddit";
 my $session_file = $config_dir . '/session';
 my $user_hash_file = $config_dir . '/hash';
 my $username_file = $config_dir . '/user';
