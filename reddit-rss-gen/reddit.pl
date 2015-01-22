@@ -8,22 +8,40 @@ use Reddit::Client;
 # Required to output UTF-8 characters correctly
 binmode STDOUT, ":utf8";
 
+sub print_help {
+	say 'HELP!';
+}
+
 my $login;
 my $subreddit;
+
+sub verify_option {
+	my ($option, $name) = @_;
+	if (not defined $option or $option =~ /\A--?/) {
+		say 'You need to specify a ', $name;
+		print_help();
+		exit 1;
+	}
+	return;
+}
 
 sub parse_args {
 	while (@ARGV) {
 		my $opt = shift @ARGV;
 		if ($opt =~ /\A(?:-u)|(?:--user)\Z/) {
 			$login = shift @ARGV;
+			verify_option($login, 'username');
 		} elsif ($opt =~ /\A(?:-s)|(?:--subreddit)\Z/) {
-			$subreddit = '/r/' . shift @ARGV;
+			$subreddit = shift @ARGV;
+			verify_option($subreddit, 'subreddit');
+			$subreddit = '/r/' . $subreddit;
 		} else {
 			die "Unrecognised option: $opt";
 		}
 	}
 }
 
+@ARGV or print_help and exit; # Only in Perl :D
 parse_args();
 
 my $config_dir = $ENV{HOME} . '/.reddit/' . $login;
