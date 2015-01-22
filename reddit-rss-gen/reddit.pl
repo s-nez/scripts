@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use feature 'say';
+use File::Basename;
 use IO::Prompt;
 use Reddit::Client;
 
@@ -9,7 +10,13 @@ use Reddit::Client;
 binmode STDOUT, ":utf8";
 
 sub print_help {
-	say 'HELP!';
+	my $script_name = basename($0);
+	say "Usage:\n",
+	"$script_name -u [USER] -s [SUBREDDIT]\n\n",
+	"Options:\n",
+	"    -u/--user - your Reddit username\n",
+	"    -s/--subreddit - the name of the target subreddit\n",
+	"    -h/--help - display this help";
 }
 
 my $login;
@@ -35,6 +42,9 @@ sub parse_args {
 			$subreddit = shift @ARGV;
 			verify_option($subreddit, 'subreddit');
 			$subreddit = '/r/' . $subreddit;
+		} elsif ($opt =~ /\A(?:-h)|(?:--help)\Z/) {
+			print_help();
+			exit 0;
 		} else {
 			die "Unrecognised option: $opt";
 		}
