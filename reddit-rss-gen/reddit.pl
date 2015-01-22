@@ -56,8 +56,6 @@ my $reddit       = Reddit::Client->new(
 );
 
 unless ($reddit->is_logged_in) {
-	print "Login: ";
-	chomp ($login = <>) unless length $login;
 	my $password = prompt('Password: ', -e => '*');
 	$reddit->login($login, $password);
 	$reddit->save_session();
