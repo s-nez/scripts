@@ -9,7 +9,7 @@ This script generates URLs to comment feeds on private subreddits.
 
 On Fedora (installs all required modules except Reddit::Client):
 
-    sudo yum install perl-IO-Prompt perl-JSON perl-URI-Encode
+    # yum install perl-IO-Prompt perl-JSON perl-URI-Encode
 
 # Configuration
 The script creates a configuration directory inside your home folder (~/.reddit). It is used to store session files and authorisation hashes.
