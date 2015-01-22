@@ -23,7 +23,7 @@ You need to provide your username and the name of a subreddit to the script. For
 
 On first run (or if the configuration got deleted) you will be prompted for your password and authorisation hash. The hash can be found in any of the URLs from [here](https://www.reddit.com/prefs/feeds). It's the sequence between __feed=__ and __&user__. For example, if your front page feed URL looks like this:
 
-http://www.reddit.com/.rss?feed=<b>6209378f6de16261f5d9230d26e6412e</b>&user=john
+http://w<b></b>ww.reddit.com/.rss?feed=<b>6209378f6de16261f5d9230d26e6412e</b>&user=john
 
 then your authorisation hash is: 6209378f6de16261f5d9230d26e6412e.
 
