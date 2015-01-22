@@ -12,7 +12,7 @@ On Fedora (installs all required modules except Reddit::Client):
     sudo yum install perl-IO-Prompt perl-JSON perl-URI-Encode
 
 # Configuration
-The script creates a configuration directory inside your home folder (~/.reddit). It is used to store session files and authorisation cookies.
+The script creates a configuration directory inside your home folder (~/.reddit). It is used to store session files and authorisation hashes.
 
 **NOTE:** The script does not store your password in any way.
 
