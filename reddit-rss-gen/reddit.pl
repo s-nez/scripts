@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use feature 'say';
 use File::Basename;
+use File::Path 'make_path';
 use IO::Prompt;
 use Reddit::Client;
 
@@ -58,7 +59,7 @@ my $config_dir = $ENV{HOME} . '/.reddit/' . $login;
 my $session_file = $config_dir . '/session';
 my $user_hash_file = $config_dir . '/hash';
 
-mkdir $config_dir unless (-e $config_dir and -d $config_dir);
+make_path($config_dir) unless (-e $config_dir and -d $config_dir);
 
 my $reddit       = Reddit::Client->new(
 	session_file => $session_file,
