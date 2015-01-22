@@ -10,3 +10,23 @@ This script generates URLs to comment feeds on private subreddits.
 On Fedora (installs all required modules except Reddit::Client):
 
     sudo yum install perl-IO-Prompt perl-JSON perl-URI-Encode
+
+# Configuration
+The script creates a configuration directory inside your home folder (~/.reddit). It is used to store session files and authorisation cookies.
+
+**NOTE:** The script does not store your password in any way.
+
+# Usage
+You need to provide your username and the name of a subreddit to the script. For example, if you want to fetch comment feeds from __r/mysubreddit__ and your Reddit username is __john__:
+
+    reddit.pl -u john -s mysubreddit
+
+On first run (or if the configuration got deleted) you will be prompted for your password and authorisation hash. The hash can be found in any of the URLs from [here](https://www.reddit.com/prefs/feeds). It's the sequence between __feed=__ and __&user__. For example, if your front page feed URL looks like this:
+
+http://www.reddit.com/.rss?feed=**6209378f6de16261f5d9230d26e6412e**&user=john
+
+then your authorisation hash is: 6209378f6de16261f5d9230d26e6412e.
+
+# Known issues
+* Only text posts are supported
+* The whole feed list is fetched each time
