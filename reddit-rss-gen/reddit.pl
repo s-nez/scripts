@@ -41,8 +41,8 @@ sub parse_args {
 	}
 }
 
-@ARGV or print_help and exit; # Only in Perl :D
 parse_args();
+defined $login and defined $subreddit or print_help and exit;
 
 my $config_dir = $ENV{HOME} . '/.reddit/' . $login;
 my $session_file = $config_dir . '/session';
@@ -73,7 +73,7 @@ open my $UHF, '<', $user_hash_file or die $!;
 my $user_hash = <$UHF>;
 close $UHF;
 
-my $links = $reddit->fetch_links(subreddit => '/r/slimak');
-foreach (@{$links->{items}}) {
-	say $_->{url} . '.rss?feed=' . $user_hash . '&user=' . $login;
+my $links = $reddit->fetch_links(subreddit => $subreddit);
+foreach my $item (@{$links->{items}}) {
+	say $item->{url} . '.rss?feed=' . $user_hash . '&user=' . $login;
 }
