@@ -4,7 +4,6 @@ use warnings;
 use feature 'say';
 use IO::Prompt;
 use Reddit::Client;
-use POSIX 'cuserid';
 
 # Required to output UTF-8 characters correctly
 binmode STDOUT, ":utf8";
@@ -16,10 +15,7 @@ my $username_file = $config_dir . '/user';
 
 mkdir $config_dir unless (-e $config_dir and -d $config_dir);
 
-my $reddit       = Reddit::Client->new(
-	session_file => $session_file,
-	user_agent   => 'Hue/1.0',
-);
+my $reddit       = Reddit::Client->new(session_file => $session_file);
 
 unless ($reddit->is_logged_in) {
 	print "Login: ";
