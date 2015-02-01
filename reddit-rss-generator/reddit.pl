@@ -84,10 +84,14 @@ open my $UHF, '<', $user_hash_file or die $!;
 my $user_hash = <$UHF>;
 close $UHF;
 
-my $links = $reddit->fetch_links(subreddit => $subreddit);
+my $links = $reddit->fetch_links(subreddit => $subreddit); 
+#say 'before: ', $links->{before};
+#say 'after: ', $links->{after};
 foreach my $item (@{ $links->{items} }) {
-    my $url = $item->{url};
-    if ($url =~ /\Ahttps?:\/\/www.reddit\.com$subreddit\/comments/) {
-        say $url . '.rss?feed=' . $user_hash . '&user=' . $login;
-    }
+	my $url = $item->{url};
+	#my $comments = $item->comments();
+	#say $comments;
+	if ($url =~ /\Ahttps?:\/\/www.reddit\.com$subreddit\/comments/) {
+		say $url . '.rss?feed=' . $user_hash . '&user=' . $login;
+	}
 }
