@@ -40,6 +40,7 @@ then
 	NOT_ENOUGH_ARGS="Niewystarczająca ilosć argumentów"
 	UNKNOWN_SERVICE="Wybrano nieznaną usługę"
 	LANGUAGES_NOT_SUPPORTED="Usługa nie obsługuje wybranej kombinacji języków"
+    NOTHING_TO_TRANSLATE="Brak tekstu do przetłumaczenia"
 else
 	TEXT_ENTRY="Enter text to translate"
 	TRANSLATION="Translation"
@@ -48,6 +49,7 @@ else
 	NOT_ENOUGH_ARGS="Not enough arguments"
 	UNKNOWN_SERVICE="Unknown service selected"
 	LANGUAGES_NOT_SUPPORTED="Language combination not suported by the service"
+    NOTHING_TO_TRANSLATE="Nothing to translate"
 fi
 
 internal_error()
@@ -65,6 +67,12 @@ then
 	EXEC=translate-bin
 else
 	internal_error "$BINARY_NOT_FOUND"
+fi
+
+NO_WINDOW=false
+if [ "$1" = '-n' -o "$1" = '--no-window' ]; then
+    shift
+    NO_WINDOW=true
 fi
 
 if [ -n "$1" -a -n "$2" ]
@@ -85,17 +93,22 @@ then
 	internal_error "$LANGUAGES_NOT_SUPPORTED"
 fi
 
-text=$( zenity --entry --title="GTran" \
-		--text="$TEXT_ENTRY ($source>$target):" \
-		--entry-text="$( xclip -o )" \
-		--window-icon=/usr/share/icons/gtran.png )
-if [ -n "$text" ]
-then
+if [ $NO_WINDOW = true ]; then
+    text=$( xclip -o )
+else
+    text=$( zenity --entry --title="GTran" \
+            --text="$TEXT_ENTRY ($source>$target):" \
+            --entry-text="$( xclip -o )" \
+            --window-icon=/usr/share/icons/gtran.png )
+fi
+
+if [ -z $text ]; then
+    internal_error "$NOTHING_TO_TRANSLATE"
+fi
+
 translation=$( echo "$text" | $EXEC -s $TRANSLATOR -f $source -t $target )
 # Fix for a change in Google Translate causing some HTML
 # formatting to be included in the translation with libtranslate
 translation=${translation##*[>]}
 echo -n "$translation" | xclip -i
-notify-send "$TRANSLATION ($source>$target)" "$translation" \
-		--icon="$ICON"
-fi
+notify-send "$TRANSLATION ($source>$target)" "$translation" --icon="$ICON"
