@@ -1,7 +1,7 @@
 # gtran
 A front-end to web-based translation services using libtranslate, designed to be invoked with a keyboard shortcut.
 
-# Dependencies
+## Dependencies
 * [libtranslate](http://www.nongnu.org/libtranslate/)
 * xclip
 * libnotify
@@ -10,7 +10,7 @@ A front-end to web-based translation services using libtranslate, designed to be
 On Fedora:
 
     # yum install libtranslate xclip libnotify zenity
-# Usage
+## Usage
 GTran takes two mandatory command line arguments - the source language and the target language - as two-letter language codes. For example, to translate from English to Polish:
    
     $ gtran en pl
