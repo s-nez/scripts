@@ -1,11 +1,11 @@
 # guinfo
 This script shows mouse coordinates or the active window geometry.
 
-# Dependencies
+## Dependencies
 * xdotool
 * libnotify
 
-# Usage
+## Usage
 Get mouse coordinates:
 
     guinfo mouse
