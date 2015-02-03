@@ -8,8 +8,8 @@ This script shows mouse coordinates or the active window geometry.
 ## Usage
 Get mouse coordinates:
 
-    guinfo mouse
+    $ guinfo mouse
 Get current window geometry:
 
-    guinfo window
+    $ guinfo window
 The script will display a notification with the requested information.
