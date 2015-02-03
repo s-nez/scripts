@@ -15,3 +15,8 @@ GTran takes two mandatory command line arguments - the source language and the t
    
     $ gtran en pl
 A text input box will appear, by default it will be populated with clipboard contents.
+
+You can also skip the input box using the -n/--no-window option:
+
+    $ gtran -n en pl
+will directly translate the clipboard contents without displaying a window.
