@@ -94,6 +94,7 @@ sub add {
 		}
 	} else {
 		$address = $_[0];
+        die 'Invalid link' unless (link_valid $link);
 	}
 	die 'No address specified' unless defined $address;
 	open my $FILE, '>>', $source or die $!;
