@@ -78,7 +78,9 @@ sub truncate_file {
 
 # Try to check if the given link is a valid YouTube address
 sub link_valid {
-	return $_[0] =~ /^http(?:s)?:\/\/(?:www\.)?youtube\.com/ if defined $_[0];
+    #TODO Make youtu.be addresses valid as well
+	#return $_[0] =~ /^http(?:s)?:\/\/(?:www\.)?youtube\.com/ if defined $_[0];
+    return 1;
 }
 
 # Add an address to the batch file
