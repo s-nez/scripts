@@ -17,6 +17,7 @@ The script creates a configuration directory inside your home folder (~/.reddit)
 **NOTE:** The script does not store your password in any way.
 
 # Usage
+## Basic usage
 You need to provide your username and the name of a subreddit to the script. For example, if you want to fetch comment feeds from __r/mysubreddit__ and your Reddit username is __john__:
 
     reddit.pl -u john -s mysubreddit
@@ -27,4 +28,5 @@ http://w<b></b>ww.reddit.com/.rss?feed=<b>6209378f6de16261f5d9230d26e6412e</b>&u
 
 then your authorisation hash is: 6209378f6de16261f5d9230d26e6412e.
 
+## Optional parameters
 By default, the script will store the id of last link fetched and fetch only newer links next time. If you want to disable this behaviour use the -a/--all, it will make the script unconditionally fetch all links again.
