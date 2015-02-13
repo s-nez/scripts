@@ -12,7 +12,7 @@ On Fedora (installs all required modules except Reddit::Client):
     # yum install perl-IO-Prompt perl-JSON perl-URI-Encode
 
 # Configuration
-The script creates a configuration directory inside your home folder (~/.reddit). It is used to store session files and authorisation hashes.
+The script creates a configuration directory inside your home folder (~/.reddit). It is used to store session files, authorisation hashes and the id of the last link fetched.
 
 **NOTE:** The script does not store your password in any way.
 
@@ -26,3 +26,5 @@ On first run (or if the configuration got deleted) you will be prompted for your
 http://w<b></b>ww.reddit.com/.rss?feed=<b>6209378f6de16261f5d9230d26e6412e</b>&user=john
 
 then your authorisation hash is: 6209378f6de16261f5d9230d26e6412e.
+
+By default, the script will store the id of last link fetched and fetch only newer links next time. If you want to disable this behaviour use the -a/--all, it will make the script unconditionally fetch all links again.
