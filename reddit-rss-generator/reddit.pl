@@ -19,6 +19,7 @@ sub print_help {
       "Options:\n",
       "    -u/--user - your Reddit username\n",
       "    -s/--subreddit - the name of the target subreddit\n",
+      "    -a/--all - unconditionally fetch all links\n",
       "    -h/--help - display this help";
 }
 
