@@ -26,6 +26,3 @@ On first run (or if the configuration got deleted) you will be prompted for your
 http://w<b></b>ww.reddit.com/.rss?feed=<b>6209378f6de16261f5d9230d26e6412e</b>&user=john
 
 then your authorisation hash is: 6209378f6de16261f5d9230d26e6412e.
-
-# Known issues
-* The whole feed list is fetched each time
