@@ -90,6 +90,19 @@ sub store_last_link {
     }
 }
 
+sub get_last_link {
+    open my $CONFIG, '<', $subreddits_file or die $!;
+    my $link_id;
+    while (<$CONFIG>) {
+        if (m|\A$subreddit\s+(.+)|) {
+            $link_id = $1;
+            last;
+        }
+    }
+    close $CONFIG;
+    return $link_id;    # returning undef is fine
+}
+
 my $reddit = Reddit::Client->new(
     session_file => $session_file,
     user_agent   => 'Hue/1.0',
@@ -113,18 +126,18 @@ open my $UHF, '<', $user_hash_file or die $!;
 my $user_hash = <$UHF>;
 close $UHF;
 
-my $links = $reddit->fetch_links(subreddit => $subreddit, limit => 100);
-store_last_link($links->{items}->[0]);
-foreach my $item (@{ $links->{items} }) {
-    my $url = $item->{permalink};
-    say URL_BASE . $url . '.rss?feed=' . $user_hash . '&user=' . $login;
+my $links = $reddit->fetch_links(
+    subreddit => $subreddit,
+    before    => get_last_link(),
+    limit     => 100
+);
 
-    #foreach my $key (keys %{ $item }) {
-    #my $text = $item->{$key} // 'undefined';
-    #if (length $text > 60) {
-    #$text = substr($text, 0, 60) . '...';
-    #}
-    #say $key, ': ', $text;
-    #}
-    #last;
+if (@{ $links->{items} }) {
+    foreach my $item (@{ $links->{items} }) {
+        my $url = $item->{permalink};
+        say URL_BASE . $url . '.rss?feed=' . $user_hash . '&user=' . $login;
+    }
+    store_last_link($links->{items}->[0]);
+} else {
+    say 'There are no new items';
 }
