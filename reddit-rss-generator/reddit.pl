@@ -34,6 +34,7 @@ sub verify_option {
 
 my $login;
 my $subreddit;
+my $fetch_all = 0;
 
 sub parse_args {
     while (@ARGV) {
@@ -48,6 +49,8 @@ sub parse_args {
         } elsif ($opt =~ /\A(?:-h)|(?:--help)\Z/) {
             print_help();
             exit 0;
+        } elsif ($opt =~ /\A(?:-a)|(?:--all)\Z/) {
+            $fetch_all = 1;
         } else {
             die "Unrecognised option: $opt";
         }
@@ -126,9 +129,10 @@ open my $UHF, '<', $user_hash_file or die $!;
 my $user_hash = <$UHF>;
 close $UHF;
 
+my $last_link = $fetch_all ? undef : get_last_link();
 my $links = $reddit->fetch_links(
     subreddit => $subreddit,
-    before    => get_last_link(),
+    before    => $last_link,
     limit     => 100
 );
 
