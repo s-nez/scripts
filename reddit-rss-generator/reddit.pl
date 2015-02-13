@@ -4,6 +4,7 @@ use warnings;
 use feature 'say';
 use File::Basename;
 use File::Path 'make_path';
+use File::Copy;
 use IO::Prompt;
 use Reddit::Client;
 use constant URL_BASE => 'http://www.reddit.com';
@@ -21,9 +22,6 @@ sub print_help {
       "    -h/--help - display this help";
 }
 
-my $login;
-my $subreddit;
-
 sub verify_option {
     my ($option, $name) = @_;
     if (not defined $option or $option =~ /\A--?/) {
@@ -33,6 +31,9 @@ sub verify_option {
     }
     return;
 }
+
+my $login;
+my $subreddit;
 
 sub parse_args {
     while (@ARGV) {
@@ -56,11 +57,38 @@ sub parse_args {
 parse_args();
 defined $login and defined $subreddit or print_help and exit;
 
-my $config_dir     = $ENV{HOME} . '/.reddit/' . $login;
-my $session_file   = $config_dir . '/session';
-my $user_hash_file = $config_dir . '/hash';
+my $config_dir      = $ENV{HOME} . '/.reddit/' . $login;
+my $session_file    = $config_dir . '/session';
+my $user_hash_file  = $config_dir . '/hash';
+my $subreddits_file = $config_dir . '/subreddits';
 
 make_path($config_dir) unless (-e $config_dir and -d $config_dir);
+
+sub store_last_link {
+    my ($link) = @_;
+    my $last_item_id = $link->{name};
+
+    if (not -e $subreddits_file) {
+        open my $CONFIG, '>', $subreddits_file or die $!;
+        say $CONFIG $subreddit, ' ', $last_item_id;
+        close $CONFIG;
+    } else {
+        my $tmp_file = '/tmp/reddit-rss-generator-tmp';
+        open my $TMP,    '>', $tmp_file        or die $!;
+        open my $CONFIG, '<', $subreddits_file or die $!;
+
+        while (<$CONFIG>) {
+            last if m|\A$subreddit|;
+            print $TMP $_;
+        }
+        say $TMP $subreddit, ' ', $last_item_id;
+        print $TMP $_ while <$CONFIG>;
+
+        close $TMP;
+        close $CONFIG;
+        move($tmp_file, $subreddits_file);
+    }
+}
 
 my $reddit = Reddit::Client->new(
     session_file => $session_file,
@@ -85,8 +113,18 @@ open my $UHF, '<', $user_hash_file or die $!;
 my $user_hash = <$UHF>;
 close $UHF;
 
-my $links = $reddit->fetch_links(subreddit => $subreddit); 
+my $links = $reddit->fetch_links(subreddit => $subreddit, limit => 100);
+store_last_link($links->{items}->[0]);
 foreach my $item (@{ $links->{items} }) {
     my $url = $item->{permalink};
     say URL_BASE . $url . '.rss?feed=' . $user_hash . '&user=' . $login;
+
+    #foreach my $key (keys %{ $item }) {
+    #my $text = $item->{$key} // 'undefined';
+    #if (length $text > 60) {
+    #$text = substr($text, 0, 60) . '...';
+    #}
+    #say $key, ': ', $text;
+    #}
+    #last;
 }
