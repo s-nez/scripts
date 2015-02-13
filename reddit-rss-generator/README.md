@@ -28,5 +28,4 @@ http://w<b></b>ww.reddit.com/.rss?feed=<b>6209378f6de16261f5d9230d26e6412e</b>&u
 then your authorisation hash is: 6209378f6de16261f5d9230d26e6412e.
 
 # Known issues
-* Only text posts are supported
 * The whole feed list is fetched each time
