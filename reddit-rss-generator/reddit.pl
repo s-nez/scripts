@@ -6,6 +6,7 @@ use File::Basename;
 use File::Path 'make_path';
 use IO::Prompt;
 use Reddit::Client;
+use constant URL_BASE => 'http://www.reddit.com';
 
 # Required to output UTF-8 characters correctly
 binmode STDOUT, ":utf8";
@@ -86,8 +87,6 @@ close $UHF;
 
 my $links = $reddit->fetch_links(subreddit => $subreddit); 
 foreach my $item (@{ $links->{items} }) {
-	my $url = $item->{url};
-	if ($url =~ /\Ahttps?:\/\/www.reddit\.com$subreddit\/comments/) {
-		say $url . '.rss?feed=' . $user_hash . '&user=' . $login;
-	}
+    my $url = $item->{permalink};
+    say URL_BASE . $url . '.rss?feed=' . $user_hash . '&user=' . $login;
 }
