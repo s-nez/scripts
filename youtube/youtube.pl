@@ -26,7 +26,7 @@ use Clipboard;
 my $source = $ENV{HOME} . '/Remote/youtube';
 #
 # Downloads destination
-my $dest_folder = $ENV{HOME} . '/Downloads/YouTube/'; 
+my $dest_folder = $ENV{HOME} . '/Downloads/YouTube/';
 #
 # Filename pattern in  youtube-dl -o format
 my $file_pattern = '%(title)s.%(ext)s';
@@ -38,7 +38,7 @@ my $file_pattern = '%(title)s.%(ext)s';
 my $destination = ($dest_folder . $file_pattern);
 
 sub display_help {
-	say 'Operations:
+    say 'Operations:
 	download - download a video from specified address or from the batch file if no address specified
 	clear - clean up videos not watched for a week from the download directory
 	add - add the specified address to the batch file
@@ -49,86 +49,102 @@ sub display_help {
 
 # Ask the user for confirmation and return their answer
 sub user_confirmed {
-	print $_[0], '[y/n] ';
-	my $answer = getc;
-	return $answer eq 'y';
+    print $_[0], '[y/n] ';
+    my $answer = getc;
+    return $answer eq 'y';
 }
 
 # Display contents of a file and its total line count
 sub display_file {
-	my ($filename) = @_;
-	open my $FILE, '<', $filename or die "$filename:$!";
-	my $lines = 0;
-	while (<$FILE>) {
-		print;
-		++$lines;
-	}
-	print while (<$FILE>);
-	close $FILE;
-	return $lines;
+    my ($filename) = @_;
+    open my $FILE, '<', $filename or die "$filename:$!";
+    my $lines = 0;
+    while (<$FILE>) {
+        print;
+        ++$lines;
+    }
+    print while (<$FILE>);
+    close $FILE;
+    return $lines;
 }
 
 # Reduce file to size 0 without deleting it, used to clear the batch file
 sub truncate_file {
-	my ($filename) = @_;
-	open my $FILE, '>', $filename or die "$filename:$!";
-	truncate $FILE, 0;
-	close $FILE;
+    my ($filename) = @_;
+    open my $FILE, '>', $filename or die "$filename:$!";
+    truncate $FILE, 0;
+    close $FILE;
 }
 
 # Try to check if the given link is a valid YouTube address
 sub link_valid {
+
     #TODO Make youtu.be addresses valid as well
-	#return $_[0] =~ /^http(?:s)?:\/\/(?:www\.)?youtube\.com/ if defined $_[0];
+    #return $_[0] =~ /^http(?:s)?:\/\/(?:www\.)?youtube\.com/ if defined $_[0];
     return 1;
 }
 
 # Add an address to the batch file
 sub add {
-	my $address;
-	if (not defined $_[0]) {
-		# Try to use clipboard contents if no address given
-		my $link = Clipboard->paste;
-		chomp $link;
-		if (link_valid $link and
-			user_confirmed "No address was specified, the clipboard contains the following:\n$link\nDo you want to add it?" ) {
-			$address = $link;
-		}
-	} else {
-		$address = $_[0];
+    my $address;
+    if (not defined $_[0]) {
+
+        # Try to use clipboard contents if no address given
+        my $link = Clipboard->paste;
+        chomp $link;
+        if (    link_valid $link
+            and user_confirmed
+"No address was specified, the clipboard contains the following:\n$link\nDo you want to add it?"
+          )
+        {
+            $address = $link;
+        }
+    } else {
+        $address = $_[0];
         die 'Invalid link' unless (link_valid $address);
-	}
-	die 'No address specified' unless defined $address;
-	open my $FILE, '>>', $source or die $!;
-	say $FILE $address;
-	close $FILE;
+    }
+    die 'No address specified' unless defined $address;
+    open my $FILE, '>>', $source or die $!;
+    say $FILE $address;
+    close $FILE;
+}
+
+# Remove files with access dates older than one week from the given directory
+sub cleanup {
+    my ($dir) = @_;
+    opendir my $DH, $dir or die $!;
+    while (readdir $DH) {
+        my $full_path = $dir . '/' . $_;
+        next if -d $full_path; # skip directories
+        unlink $full_path if -A $full_path > 7;
+    }
 }
 
 mkdir $dest_folder unless -d $dest_folder;
 
 unless (@ARGV) {
-	say 'No arguments.';
-	display_help;
+    say 'No arguments.';
+    display_help;
 } elsif ($ARGV[0] eq 'download') {
-	if (defined $ARGV[1]) {
-		system "youtube-dl -o \'$destination\' \'$ARGV[1]\'";
-	} else {
-		system "youtube-dl -a \'$source\' -o \'$destination\'";
-		truncate_file $source if $? == 0;
-	}
+    if (defined $ARGV[1]) {
+        system "youtube-dl -o \'$destination\' \'$ARGV[1]\'";
+    } else {
+        system "youtube-dl -a \'$source\' -o \'$destination\'";
+        truncate_file $source if $? == 0;
+    }
 } elsif ($ARGV[0] eq 'clear') {
-	system "find \'$dest_folder\' -atime +7 -type f -delete";
+    cleanup $dest_folder;
 } elsif ($ARGV[0] eq 'add') {
-	add $ARGV[1];
+    add $ARGV[1];
 } elsif ($ARGV[0] eq 'show') {
-	my $total = display_file $source;
-	say 'Total: ', $total, ' videos';
+    my $total = display_file $source;
+    say 'Total: ', $total, ' videos';
 } elsif ($ARGV[0] eq 'remove') {
-	truncate_file $source; 
+    truncate_file $source;
 } elsif ($ARGV[0] eq 'help') {
-	say 'A command-line interface to YouTube (using youtube-dl).';
-	display_help;
+    say 'A command-line interface to YouTube (using youtube-dl).';
+    display_help;
 } else {
-	say 'Unknown operation: ', $ARGV[0];
-	display_help;
+    say 'Unknown operation: ', $ARGV[0];
+    display_help;
 }
