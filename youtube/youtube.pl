@@ -76,14 +76,6 @@ sub truncate_file {
     close $FILE;
 }
 
-# Try to check if the given link is a valid YouTube address
-sub link_valid {
-
-    #TODO Make youtu.be addresses valid as well
-    #return $_[0] =~ /^http(?:s)?:\/\/(?:www\.)?youtube\.com/ if defined $_[0];
-    return 1;
-}
-
 # Add an address to the batch file
 sub add {
     my $address;
@@ -92,8 +84,7 @@ sub add {
         # Try to use clipboard contents if no address given
         my $link = Clipboard->paste;
         chomp $link;
-        if (    link_valid $link
-            and user_confirmed
+        if (user_confirmed
 "No address was specified, the clipboard contains the following:\n$link\nDo you want to add it?"
           )
         {
@@ -101,7 +92,6 @@ sub add {
         }
     } else {
         $address = $_[0];
-        die 'Invalid link' unless (link_valid $address);
     }
     die 'No address specified' unless defined $address;
     open my $FILE, '>>', $source or die $!;
@@ -115,7 +105,7 @@ sub cleanup {
     opendir my $DH, $dir or die $!;
     while (readdir $DH) {
         my $full_path = $dir . '/' . $_;
-        next if -d $full_path; # skip directories
+        next if -d $full_path;                    # skip directories
         unlink $full_path if -A $full_path > 7;
     }
 }
