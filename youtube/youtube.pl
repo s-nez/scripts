@@ -82,12 +82,13 @@ sub add {
     unless (defined $address) {
 
         # Try to use clipboard contents if no address given
-        my $link = Clipboard->paste;
-        chomp $link;
-        if (user_confirmed
-"No address was specified, the clipboard contains the following:\n$link\nDo you want to add it?"
-          )
-        {
+        chomp(my $link = Clipboard->paste);
+        my $confirmation_message =
+            "No address was specified, "
+          . "the clipboard contains the following:\n"
+          . $link
+          . "\nDo you want to add it?";
+        if (user_confirmed $confirmation_message) {
             $address = $link;
         }
     }
