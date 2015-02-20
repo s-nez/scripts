@@ -78,8 +78,8 @@ sub truncate_file {
 
 # Add an address to the batch file
 sub add {
-    my $address;
-    if (not defined $_[0]) {
+    my ($address) = @_;
+    unless (defined $address) {
 
         # Try to use clipboard contents if no address given
         my $link = Clipboard->paste;
@@ -90,8 +90,6 @@ sub add {
         {
             $address = $link;
         }
-    } else {
-        $address = $_[0];
     }
     die 'No address specified' unless defined $address;
     open my $FILE, '>>', $source or die $!;
