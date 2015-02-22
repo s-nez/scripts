@@ -28,7 +28,7 @@ my $source = $ENV{HOME} . '/Remote/youtube';
 # Downloads destination
 my $dest_folder = $ENV{HOME} . '/Downloads/YouTube/';
 #
-# Filename pattern in  youtube-dl -o format
+# Filename pattern in youtube-dl -o format
 my $file_pattern = '%(title)s.%(ext)s';
 #
 # End of user-configurable variables
@@ -110,7 +110,7 @@ sub cleanup {
     }
 }
 
-# Download a video from the specified address or the batch file
+# Download video from the specified address or the batch file
 sub download {
     my ($address) = @_;
     if (defined $address) {
