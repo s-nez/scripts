@@ -126,19 +126,26 @@ mkdir $dest_folder unless -d $dest_folder;
 unless (@ARGV) {
     say 'No arguments.';
     display_help;
+
 } elsif ($ARGV[0] eq 'download') {
-    download($ARGV[1]);
+    download $ARGV[1];
+
 } elsif ($ARGV[0] eq 'clear') {
     cleanup $dest_folder;
+
 } elsif ($ARGV[0] eq 'add') {
     add $ARGV[1];
+
 } elsif ($ARGV[0] eq 'show') {
     display_file $source;
+
 } elsif ($ARGV[0] eq 'remove') {
     truncate_file $source;
+
 } elsif ($ARGV[0] eq 'help') {
     say 'A command-line interface to YouTube (using youtube-dl).';
     display_help;
+
 } else {
     say 'Unknown operation: ', $ARGV[0];
     display_help;
