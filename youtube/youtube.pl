@@ -65,7 +65,8 @@ sub display_file {
     }
     print while (<$FILE>);
     close $FILE;
-    return $lines;
+    say 'Total: ', $lines, ' videos';
+    return;
 }
 
 # Reduce file to size 0 without deleting it, used to clear the batch file
@@ -132,8 +133,7 @@ unless (@ARGV) {
 } elsif ($ARGV[0] eq 'add') {
     add $ARGV[1];
 } elsif ($ARGV[0] eq 'show') {
-    my $total = display_file $source;
-    say 'Total: ', $total, ' videos';
+    display_file $source;
 } elsif ($ARGV[0] eq 'remove') {
     truncate_file $source;
 } elsif ($ARGV[0] eq 'help') {
