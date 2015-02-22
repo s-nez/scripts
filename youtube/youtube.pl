@@ -109,18 +109,24 @@ sub cleanup {
     }
 }
 
+# Download a video from the specified address or the batch file
+sub download {
+    my ($address) = @_;
+    if (defined $address) {
+        system "youtube-dl -o \'$destination\' \'$address\'";
+    } else {
+        system "youtube-dl -a \'$source\' -o \'$destination\'";
+        truncate_file $source if $? == 0;
+    }
+}
+
 mkdir $dest_folder unless -d $dest_folder;
 
 unless (@ARGV) {
     say 'No arguments.';
     display_help;
 } elsif ($ARGV[0] eq 'download') {
-    if (defined $ARGV[1]) {
-        system "youtube-dl -o \'$destination\' \'$ARGV[1]\'";
-    } else {
-        system "youtube-dl -a \'$source\' -o \'$destination\'";
-        truncate_file $source if $? == 0;
-    }
+    download($ARGV[1]);
 } elsif ($ARGV[0] eq 'clear') {
     cleanup $dest_folder;
 } elsif ($ARGV[0] eq 'add') {
