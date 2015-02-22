@@ -123,30 +123,31 @@ sub download {
 
 mkdir $dest_folder unless -d $dest_folder;
 
-unless (@ARGV) {
+my $operation = shift;
+unless (defined $operation) {
     say 'No arguments.';
     display_help;
 
-} elsif ($ARGV[0] eq 'download') {
-    download $ARGV[1];
+} elsif ($operation eq 'download') {
+    download shift;
 
-} elsif ($ARGV[0] eq 'clear') {
+} elsif ($operation eq 'clear') {
     cleanup $dest_folder;
 
-} elsif ($ARGV[0] eq 'add') {
-    add $ARGV[1];
+} elsif ($operation eq 'add') {
+    add shift;
 
-} elsif ($ARGV[0] eq 'show') {
+} elsif ($operation eq 'show') {
     display_file $source;
 
-} elsif ($ARGV[0] eq 'remove') {
+} elsif ($operation eq 'remove') {
     truncate_file $source;
 
-} elsif ($ARGV[0] eq 'help') {
+} elsif ($operation eq 'help') {
     say 'A command-line interface to YouTube (using youtube-dl).';
     display_help;
 
 } else {
-    say 'Unknown operation: ', $ARGV[0];
+    say 'Unknown operation: ', $operation;
     display_help;
 }
