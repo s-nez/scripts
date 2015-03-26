@@ -17,6 +17,7 @@
 use strict;
 use warnings;
 use feature 'say';
+use File::Copy 'move';
 use Clipboard;
 
 #######################################################################
@@ -121,6 +122,40 @@ sub download {
     }
 }
 
+# Review and remove batch file entries
+sub modify {
+    my ($filename) = @_;
+    open my $FH, '<', $filename or die $!;
+    print $., ': ', $_ while (<$FH>);
+    print 'Entries to remove: ';
+    my $to_remove = <>;
+    chomp $to_remove;
+
+    # Filter out non-number entries and sort the rest numerically
+    my @entries = sort { $a <=> $b } grep { /\A\d+\Z/ } split ' ', $to_remove;
+    seek $FH, 0, 0;    # go back to the beginning of file
+    $FH->input_line_number(0);    # reset the input line counter ($.)
+
+    my $tmp_file = '/tmp/' . $$ . '-youtube.tmp';
+    open my $TMP, '>', $tmp_file or die $!;
+    my ($entry_index, $anything_removed) = (0, 0);
+    while (<$FH>) {
+        if ($entry_index < @entries and $. == $entries[$entry_index]) {
+            ++$entry_index;
+            $anything_removed = 1;
+        } else {
+            print $TMP $_;
+        }
+    }
+    close($FH);
+    if ($anything_removed) {
+        move($tmp_file, $filename);
+    } else {
+        close($TMP);
+        unlink $tmp_file;
+    }
+}
+
 mkdir $dest_folder unless -d $dest_folder;
 
 my $operation = shift;
@@ -142,6 +177,9 @@ unless (defined $operation) {
 
 } elsif ($operation eq 'remove') {
     truncate_file $source;
+
+} elsif ($operation eq 'modify') {
+    modify $source;
 
 } elsif ($operation eq 'help') {
     say 'A command-line interface to YouTube (using youtube-dl).';
