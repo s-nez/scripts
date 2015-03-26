@@ -37,6 +37,11 @@ This will download the [Big Buck Bunny](https://www.youtube.com/watch?v=YE7VzlLt
 
 **show** - displays the download queue along with the total count of videos.
 
-**remove**- clears the download queue. This remove all entries in the batch file containing the queue and leave it empty.
+**modify** - displays a numbered list of batch file entries and prompts the
+user to select the entries they want to remove. The selected entries are
+subsequently removed.
+
+**remove**- clears the download queue. This removes all entries in the batch
+file containing the queue and leave it empty.
 
 **help** - display a short summary of options.
