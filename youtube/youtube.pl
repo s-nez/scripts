@@ -133,27 +133,25 @@ sub modify {
 
     # Filter out non-number entries and sort the rest numerically
     my @entries = sort { $a <=> $b } grep { /\A\d+\Z/ } split ' ', $to_remove;
-    seek $FH, 0, 0;    # go back to the beginning of file
-    $FH->input_line_number(0);    # reset the input line counter ($.)
+    return unless @entries;    # no entries, nothing to do
+
+    seek $FH, 0, 0;            # go back to the beginning of file
+    $FH->input_line_number(1); # make $. indicate the line ahead
 
     my $tmp_file = '/tmp/' . $$ . '-youtube.tmp';
     open my $TMP, '>', $tmp_file or die $!;
-    my ($entry_index, $anything_removed) = (0, 0);
-    while (<$FH>) {
-        if ($entry_index < @entries and $. == $entries[$entry_index]) {
-            ++$entry_index;
-            $anything_removed = 1;
-        } else {
-            print $TMP $_;
+
+    foreach my $entry (@entries) {
+        while (not eof $FH and $entry > $.) {
+            print $TMP scalar <$FH>;
         }
+        readline $FH if $entry == $.;    # skip the line if it matches an entry
     }
+    print $TMP $_ while (<$FH>);         # write the rest of the file
+
     close($FH);
-    if ($anything_removed) {
-        move($tmp_file, $filename);
-    } else {
-        close($TMP);
-        unlink $tmp_file;
-    }
+    close($TMP);
+    move($tmp_file, $filename);
 }
 
 mkdir $dest_folder unless -d $dest_folder;
