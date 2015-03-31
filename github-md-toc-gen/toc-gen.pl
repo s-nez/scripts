@@ -13,7 +13,7 @@ my ($start_delim, $end_delim) = ('<!--TOC_START--->', '<!--TOC_END-->');
 
 # Commandline options 
 our $opt_d = 0; # add delimeters to the ToC
-our $opt_w = 0; # write the ToC into the source file (TODO)
+our $opt_w = 0; # write the ToC into the source file
 getopts('dw');
 
 @ARGV or die 'You need to specify a filename';
@@ -65,3 +65,17 @@ while (<$FH>) {
 }
 
 close $FH;
+close $TMP;
+
+if ($toc_status eq 'before') {
+    say 'ERROR: No starting delimeter found';
+    unlink $tmp_file;
+    exit 1;
+} elsif ($toc_status eq 'inside') {
+    say 'ERROR: No ending delimeter found';
+    unlink $tmp_file;
+    exit 1;
+} else {
+    use File::Copy 'move';
+    move($tmp_file, $filename);
+}
