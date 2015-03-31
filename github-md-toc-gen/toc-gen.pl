@@ -20,17 +20,48 @@ getopts('dw');
 my ($filename) = @ARGV;
 open my $FH, '<:utf8', $filename or die $!;
 
-say $start_delim if $opt_d;
+my @toc;
+push @toc, $start_delim if $opt_d;
 while (<$FH>) {
     if (/\A#{$start_hlvl}(#+) (.+)\Z/) {
         chomp;
-        my $lvl   = length $1;
+        my $lvl   = length($1) - $start_hlvl;
         my $title = $2;
         my $link  = lc $title;
         $link =~ s/\s+/-/g;
         $link =~ s/[^\w-]//gu;
-        say $tab x $lvl, "* [$title](#$link)";
+        push @toc, $tab x $lvl . "* [$title](#$link)";
     }
 }
-say $end_delim if $opt_d;
+push @toc, $end_delim if $opt_d;
+
+unless ($opt_w) {
+    close $FH;
+    say foreach @toc;
+    exit 0;
+}
+
+# Option -w selected
+my $toc_status = 'before'; # possible values: before, inside, after
+my $tmp_file = "/tmp/ghtocgen-$$";
+open my $TMP, '>:utf8', $tmp_file or die $!;
+seek $FH, 0, 0;
+
+while (<$FH>) {
+    if ($toc_status eq 'before') {
+        if (index($_, $start_delim) != -1) {
+            say $TMP $_ foreach @toc;
+            $toc_status = 'inside';
+        } else {
+            print $TMP $_;
+        }
+    } elsif ($toc_status eq 'inside') {
+        if (index($_, $end_delim) != -1) {
+            $toc_status = 'after';
+        }
+    } else {
+        print $TMP $_;
+    }
+}
+
 close $FH;
