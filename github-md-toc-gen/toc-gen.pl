@@ -1,19 +1,21 @@
 #!/usr/bin/env perl 
 use strict;
 use warnings;
-use feature 'say';
+use feature qw(say unicode_strings);
 use Getopt::Std;
-
+use encoding 'utf-8';
 binmode STDOUT, 'utf8';
 
 my $tab        = ' ' x 4;
 my $start_hlvl = 1;
 
-my ($start_delim, $end_delim) = ('<!--TOC_START--->', '<!--TOC_END-->');
+my ($start_delim, $end_delim) = ('<!--TOC_START--->', '<!--TOC_END--->');
 
-# Commandline options 
-our $opt_d = 0; # add delimeters to the ToC
-our $opt_w = 0; # write the ToC into the source file
+# Commandline options
+our $opt_d = 0;     # add delimeters to the ToC
+our $opt_w = 0;     # write the ToC into the source file
+our $opt_t = '';    # add a custom title for the ToC
+getopt('t');
 getopts('dw');
 
 @ARGV or die 'You need to specify a filename';
@@ -22,6 +24,7 @@ open my $FH, '<:utf8', $filename or die $!;
 
 my @toc;
 push @toc, $start_delim if $opt_d;
+push @toc, '#' x ($start_hlvl + 1) . ' ' . $opt_t if $opt_t;
 while (<$FH>) {
     if (/\A#{$start_hlvl}(#+) (.+)\Z/) {
         chomp;
@@ -42,8 +45,8 @@ unless ($opt_w) {
 }
 
 # Option -w selected
-my $toc_status = 'before'; # possible values: before, inside, after
-my $tmp_file = "/tmp/ghtocgen-$$";
+my $toc_status = 'before';             # possible values: before, inside, after
+my $tmp_file   = "/tmp/ghtocgen-$$";
 open my $TMP, '>:utf8', $tmp_file or die $!;
 seek $FH, 0, 0;
 
