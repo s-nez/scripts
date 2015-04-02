@@ -1,9 +1,10 @@
-#!/usr/bin/env perl 
+#!/usr/bin/perl
 use strict;
 use warnings;
-use feature qw(say unicode_strings);
+use feature 'say';
+use Encode 'decode_utf8';
 use Getopt::Std;
-use encoding 'utf-8';
+
 binmode STDOUT, 'utf8';
 
 my $tab        = ' ' x 4;
@@ -24,7 +25,7 @@ open my $FH, '<:utf8', $filename or die $!;
 
 my @toc;
 push @toc, $start_delim if $opt_d;
-push @toc, '#' x ($start_hlvl + 1) . ' ' . $opt_t if $opt_t;
+push @toc, '#' x ($start_hlvl + 1) . ' ' . decode_utf8($opt_t) if $opt_t;
 while (<$FH>) {
     if (/\A#{$start_hlvl}(#+) (.+)\Z/) {
         chomp;
