@@ -37,7 +37,8 @@ while (<$FH>) {
         push @toc, $tab x $lvl . "* [$title](#$link)";
     }
 }
-push @toc, $end_delim if $opt_d;
+# newline required for Markdown to treat this as a comment
+push @toc, "\n" . $end_delim if $opt_d; 
 
 unless ($opt_w) {
     close $FH;
