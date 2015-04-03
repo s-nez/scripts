@@ -7,8 +7,8 @@ use Getopt::Std;
 
 binmode STDOUT, 'utf8';
 
-my $tab        = ' ' x 4;
-my $start_hlvl = 1;
+my $tab = ' ' x 4;
+my ($min_hlvl, $max_hlvl) = (1, 4); # TODO: Make this configurable
 
 my ($start_delim, $end_delim) = ('<!--TOC_START--->', '<!--TOC_END--->');
 
@@ -25,11 +25,12 @@ open my $FH, '<:utf8', $filename or die $!;
 
 my @toc;
 push @toc, $start_delim if $opt_d;
-push @toc, '#' x ($start_hlvl + 1) . ' ' . decode_utf8($opt_t) if $opt_t;
+push @toc, '#' x ($min_hlvl + 1) . ' ' . decode_utf8($opt_t) if $opt_t;
 while (<$FH>) {
-    if (/\A#{$start_hlvl}(#+) (.+)\Z/) {
+    if (/\A#{$min_hlvl}(#+) (.+)\Z/) {
+        next if length($1) + $min_hlvl > $max_hlvl;
         chomp;
-        my $lvl   = length($1) - $start_hlvl;
+        my $lvl   = length($1) - $min_hlvl;
         my $title = $2;
         my $link  = lc $title;
         $link =~ s/\s+/-/g;
@@ -37,8 +38,9 @@ while (<$FH>) {
         push @toc, $tab x $lvl . "* [$title](#$link)";
     }
 }
+
 # newline required for Markdown to treat this as a comment
-push @toc, "\n" . $end_delim if $opt_d; 
+push @toc, "\n" . $end_delim if $opt_d;
 
 unless ($opt_w) {
     close $FH;
