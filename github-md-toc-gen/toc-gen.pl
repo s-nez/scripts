@@ -4,20 +4,22 @@ use warnings;
 use feature 'say';
 use Encode 'decode_utf8';
 use Getopt::Std;
-
 binmode STDOUT, 'utf8';
 
 my $tab = ' ' x 4;
-my ($min_hlvl, $max_hlvl) = (1, 4);    # TODO: Make this configurable
-
+my ($min_hlvl, $max_hlvl) = (1, 4);
 my ($start_delim, $end_delim) = ('<!--TOC_START--->', '<!--TOC_END--->');
 
 # Commandline options
 our $opt_d = 0;                        # add delimeters to the ToC
 our $opt_w = 0;                        # write the ToC into the source file
+our $opt_s = 0;                        # starting heading level ($min_hlvl)
+our $opt_e = 0;                        # ending heading level ($max_hlvl)
 our $opt_t = '';                       # add a custom title for the ToC
-getopt('t');
+getopt('tse');
 getopts('dw');
+$min_hlvl = $opt_s if $opt_s;
+$max_hlvl = $opt_e if $opt_e;
 
 sub toc_add(\@$$) {
     my ($toc, $raw_level, $title) = @_;
