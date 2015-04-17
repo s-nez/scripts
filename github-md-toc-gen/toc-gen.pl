@@ -62,6 +62,13 @@ my %parse_input = (
 );
 $parse_input{$toc_status}->($_) while (<$SOURCE>);
 
+# Having a starting delimeter but no ending one causes the parser above to
+# ignore everything from the starting delimeter to the end of file
+if ($toc_status eq 'inside') {
+    say 'ERROR: A starting delimeter was found but no ending delimeter';
+    exit 1;
+}
+
 # newline required for Markdown to treat this as a comment
 push @toc, "\n" . $end_delim if $opt_d;
 
