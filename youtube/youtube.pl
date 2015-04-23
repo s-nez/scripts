@@ -163,7 +163,11 @@ unless (defined $operation) {
     display_help;
 
 } elsif ($operation eq 'download') {
-    download shift;
+    if (-s $source > 0) {
+        download shift;
+    } else {
+        say 'Nothing to download';
+    }
 
 } elsif ($operation eq 'clear') {
     cleanup $dest_folder;
