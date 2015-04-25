@@ -29,7 +29,7 @@ sub toc_add(\@$$) {
     $title =~ s/\s+$//;                # remove trailing whitespace
     my $link = lc $title;
     $link =~ s/\s+/-/g;
-    $link =~ s/[^\w-]//gu;
+    $link =~ s/[^\w-]|_//gu;
     push @$toc, $tab x $lvl . "* [$title](#$link)";
 }
 
