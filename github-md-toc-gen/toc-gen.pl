@@ -11,11 +11,11 @@ my ($min_hlvl, $max_hlvl) = (1, 4);
 my ($start_delim, $end_delim) = ('<!--TOC_START--->', '<!--TOC_END--->');
 
 # Commandline options
-our $opt_d = 0;                        # add delimeters to the ToC
-our $opt_w = 0;                        # write the ToC into the source file
-our $opt_s = 0;                        # starting heading level ($min_hlvl)
-our $opt_e = 0;                        # ending heading level ($max_hlvl)
-our $opt_t = '';                       # add a custom title for the ToC
+our $opt_d = 0;     # add delimeters to the ToC
+our $opt_w = 0;     # write the ToC into the source file
+our $opt_s = 0;     # starting heading level ($min_hlvl)
+our $opt_e = 0;     # ending heading level ($max_hlvl)
+our $opt_t = '';    # add a custom title for the ToC
 getopt('tse');
 getopts('dw');
 $min_hlvl = $opt_s if $opt_s;
@@ -26,7 +26,8 @@ sub toc_add(\@$$) {
     return if length($raw_level) + $min_hlvl > $max_hlvl;
 
     my $lvl = length($raw_level) - $min_hlvl;
-    $title =~ s/\s+$//;                # remove trailing whitespace
+    $title =~ s/\s+$//;                  # remove trailing whitespace
+    $title =~ s/\[(.+)\]\(\S+\)/$1/g;    # remove md link formatting
     my $link = lc $title;
     $link =~ s/\s+/-/g;
     $link =~ s/[^\w-]|_//gu;
@@ -81,11 +82,11 @@ unless ($opt_w) {
 }
 
 # Option -w selected
-my $tmp_file   = "/tmp/ghtocgen-$$";
+my $tmp_file = "/tmp/ghtocgen-$$";
 open my $TMP, '>:utf8', $tmp_file or die $!;
 seek $SOURCE, 0, 0;
 
-$toc_status = 'before';             # possible values: before, inside, after
+$toc_status = 'before';    # possible values: before, inside, after
 while (<$SOURCE>) {
     if ($toc_status eq 'before') {
         if (index($_, $start_delim) != -1) {
