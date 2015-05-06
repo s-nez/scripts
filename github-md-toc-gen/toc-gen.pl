@@ -28,7 +28,7 @@ sub toc_add(\@$$) {
     my $lvl = length($raw_level) - $min_hlvl;
     $title =~ s/\s+$//;                  # remove trailing whitespace
     $title =~ s/\[(.+)\]\(\S+\)/$1/g;    # remove md link formatting
-    my $link = lc $title;
+    my $link = $title =~ s{(\p{InBasic_Latin})}{lc $1}ger;
     $link =~ s/\s+/-/g;
     $link =~ s/[^\w-]|_//gu;
     push @$toc, $tab x $lvl . "* [$title](#$link)";
