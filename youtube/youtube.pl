@@ -44,7 +44,7 @@ sub display_help {
 	clear - clean up videos not watched for a week from the download directory
 	add - add the specified address to the batch file
 	show - display addresses in the batch file
-    modify - remove selected entries from the batch file
+	modify - remove selected entries from the batch file
 	remove - remove all entries from the batch file
 	help - display this help';
 }
