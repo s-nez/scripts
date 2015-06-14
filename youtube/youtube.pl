@@ -16,10 +16,10 @@
 
 use strict;
 use warnings;
-use feature 'say';
 use autodie;
 use File::Copy 'move';
 use Clipboard;
+use v5.12;
 
 #######################################################################
 # User-configurable variables
