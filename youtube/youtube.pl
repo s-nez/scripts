@@ -17,6 +17,7 @@
 use strict;
 use warnings;
 use feature 'say';
+use autodie;
 use File::Copy 'move';
 use Clipboard;
 
@@ -59,23 +60,16 @@ sub user_confirmed {
 # Display contents of a file and its total line count
 sub display_file {
     my ($filename) = @_;
-    open my $FILE, '<', $filename or die "$filename:$!";
-    my $lines = 0;
-    while (<$FILE>) {
-        print;
-        ++$lines;
-    }
+    open my $FILE, '<', $filename;
     print while (<$FILE>);
+    say 'Total: ', $., ' videos';
     close $FILE;
-    say 'Total: ', $lines, ' videos';
     return;
 }
 
 # Reduce file to size 0 without deleting it, used to clear the batch file
 sub truncate_file {
-    my ($filename) = @_;
-    open my $FILE, '>', $filename or die "$filename:$!";
-    truncate $FILE, 0;
+    open my $FILE, '>', shift;
     close $FILE;
 }
 
@@ -96,7 +90,7 @@ sub add {
         }
     }
     die 'No address specified' unless defined $address;
-    open my $FILE, '>>', $source or die $!;
+    open my $FILE, '>>', $source;
     say $FILE $address;
     close $FILE;
 }
@@ -104,7 +98,7 @@ sub add {
 # Remove files with access dates older than one week from the given directory
 sub cleanup {
     my ($dir) = @_;
-    opendir my $DH, $dir or die $!;
+    opendir my ($DH), $dir;
     while (readdir $DH) {
         my $full_path = $dir . '/' . $_;
         next if -d $full_path;                    # skip directories
@@ -126,7 +120,7 @@ sub download {
 # Review and remove batch file entries
 sub modify {
     my ($filename) = @_;
-    open my $FH, '<', $filename or die $!;
+    open my $FH, '<', $filename;
     print $., ': ', $_ while (<$FH>);
     print 'Entries to remove: ';
     my $to_remove = <>;
@@ -140,7 +134,7 @@ sub modify {
     $FH->input_line_number(1); # make $. indicate the line ahead
 
     my $tmp_file = '/tmp/' . $$ . '-youtube.tmp';
-    open my $TMP, '>', $tmp_file or die $!;
+    open my $TMP, '>', $tmp_file;
 
     foreach my $entry (@entries) {
         while (not eof $FH and $entry > $.) {
@@ -150,8 +144,8 @@ sub modify {
     }
     print $TMP $_ while (<$FH>);         # write the rest of the file
 
-    close($FH);
-    close($TMP);
+    close $FH;
+    close $TMP;
     move($tmp_file, $filename);
 }
 
