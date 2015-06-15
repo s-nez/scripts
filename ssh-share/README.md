@@ -37,6 +37,7 @@ For example, with the example config:
 ```
 ./share.pl alias1 some_file other_file up*
 ```
-This will upload some\_file, other\_file and all filed beginning with "up"
-to **dir1** at **host1**, logging in as **user1**. You may need to provide
-a password for the user or an ssh key, depending on your ssh configuration.
+This will upload _some\_file_, _other\_file_ and all files beginning with
+"up" to **dir1** at **host1**, logging in as **user1**. You may need to
+provide a password for the user or an ssh key, depending on your ssh
+configuration.
