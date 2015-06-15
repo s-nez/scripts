@@ -8,7 +8,7 @@ use Net::OpenSSH;
 # User-configurable variables
 #
 # Location of the configuration file
-my $CONF = './ssh-share.conf';
+my $CONF = "$ENV{HOME}/.ssh-share.conf";
 #
 # End of user-configurable variables
 #######################################################################
@@ -33,4 +33,4 @@ my ($host, $dir) = split ':', $target_host;
 defined $host and defined $dir or die "Invalid entry: $target_host\n";
 
 my $ssh = Net::OpenSSH->new($host);
-$ssh->scp_put({glob => 1, recursive => 1}, @ARGV, $dir);
+$ssh->scp_put({glob => 1, recursive => 1, quiet =>0}, @ARGV, $dir);
