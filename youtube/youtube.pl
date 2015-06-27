@@ -111,9 +111,11 @@ sub download {
     my ($address) = @_;
     if (defined $address) {
         system "youtube-dl -o \'$destination\' \'$address\'";
-    } else {
+    } elsif (-s $source > 0) {
         system "youtube-dl -a \'$source\' -o \'$destination\'";
         truncate_file $source if $? == 0;
+    } else {
+        say 'Nothing to download';
     }
 }
 
@@ -157,11 +159,7 @@ unless (defined $operation) {
     display_help;
 
 } elsif ($operation eq 'download') {
-    if (-s $source > 0) {
-        download shift;
-    } else {
-        say 'Nothing to download';
-    }
+    download shift;
 
 } elsif ($operation eq 'clear') {
     cleanup $dest_folder;
