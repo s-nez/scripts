@@ -7,6 +7,8 @@ use File::Path 'make_path';
 use File::Copy;
 use IO::Prompt;
 use Reddit::Client;
+use Getopt::Long;
+use autodie;
 use constant URL_BASE => 'http://www.reddit.com';
 
 # Required to output UTF-8 characters correctly
@@ -23,66 +25,43 @@ sub print_help {
       "    -h/--help - display this help";
 }
 
-sub verify_option {
-    my ($option, $name) = @_;
-    if (not defined $option or $option =~ /\A--?/) {
-        say 'You need to specify a ', $name;
-        print_help();
-        exit 1;
-    }
-    return;
+my ($login, $subreddit);
+my ($fetch_all, $show_help) = (0, 0);
+GetOptions(
+    'u|user=s'      => \$login,
+    's|subreddit=s' => \$subreddit,
+    'a|all'         => \$fetch_all,
+    'h|help'        => \$show_help
+) or die "Error in command line arguments\n";
+die "Too many arguments\n" if @ARGV;
+
+if ($show_help or not defined $login or not defined $subreddit) {
+    print_help();
+    exit;
 }
-
-my $login;
-my $subreddit;
-my $fetch_all = 0;
-
-sub parse_args {
-    while (@ARGV) {
-        my $opt = shift @ARGV;
-        if ($opt =~ /\A(?:-u)|(?:--user)\Z/) {
-            $login = shift @ARGV;
-            verify_option($login, 'username');
-        } elsif ($opt =~ /\A(?:-s)|(?:--subreddit)\Z/) {
-            $subreddit = shift @ARGV;
-            verify_option($subreddit, 'subreddit');
-            $subreddit = '/r/' . $subreddit;
-        } elsif ($opt =~ /\A(?:-h)|(?:--help)\Z/) {
-            print_help();
-            exit 0;
-        } elsif ($opt =~ /\A(?:-a)|(?:--all)\Z/) {
-            $fetch_all = 1;
-        } else {
-            die "Unrecognised option: $opt";
-        }
-    }
-}
-
-parse_args();
-defined $login and defined $subreddit or print_help and exit;
 
 my $config_dir      = $ENV{HOME} . '/.reddit/' . $login;
 my $session_file    = $config_dir . '/session';
 my $user_hash_file  = $config_dir . '/hash';
 my $subreddits_file = $config_dir . '/subreddits';
 
-make_path($config_dir) unless (-e $config_dir and -d $config_dir);
+make_path($config_dir) unless -d $config_dir;
 
 sub store_last_link {
     my ($link) = @_;
     my $last_item_id = $link->{name};
 
     if (not -e $subreddits_file) {
-        open my $CONFIG, '>', $subreddits_file or die $!;
+        open my $CONFIG, '>', $subreddits_file;
         say $CONFIG $subreddit, ' ', $last_item_id;
         close $CONFIG;
     } else {
         my $tmp_file = '/tmp/reddit-rss-generator-tmp';
-        open my $TMP,    '>', $tmp_file        or die $!;
-        open my $CONFIG, '<', $subreddits_file or die $!;
+        open my $TMP,    '>', $tmp_file;
+        open my $CONFIG, '<', $subreddits_file;
 
         while (<$CONFIG>) {
-            last if m|\A$subreddit|;
+            last if m/\A$subreddit/;
             print $TMP $_;
         }
         say $TMP $subreddit, ' ', $last_item_id;
@@ -95,10 +74,10 @@ sub store_last_link {
 }
 
 sub get_last_link {
-    open my $CONFIG, '<', $subreddits_file or die $!;
+    open my $CONFIG, '<', $subreddits_file;
     my $link_id;
     while (<$CONFIG>) {
-        if (m|\A$subreddit\s+(.+)|) {
+        if (/\A$subreddit\s+(.+)/) {
             $link_id = $1;
             last;
         }
@@ -121,12 +100,12 @@ unless ($reddit->is_logged_in) {
 unless (-e $user_hash_file) {
     print 'User authorisation hash: ';
     chomp(my $hash = <>);
-    open my $UHF, '>', $user_hash_file or die $!;
+    open my $UHF, '>', $user_hash_file;
     print $UHF $hash;
     close $UHF;
 }
 
-open my $UHF, '<', $user_hash_file or die $!;
+open my $UHF, '<', $user_hash_file;
 my $user_hash = <$UHF>;
 close $UHF;
 
@@ -142,7 +121,7 @@ if (@{ $links->{items} }) {
         my $url = $item->{permalink};
         say URL_BASE . $url . '.rss?feed=' . $user_hash . '&user=' . $login;
     }
-    store_last_link($links->{items}->[0]);
+    store_last_link($links->{items}[0]);
 } else {
     say 'There are no new items';
 }
